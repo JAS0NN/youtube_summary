@@ -75,7 +75,7 @@ def main():
                         print(summary)
 
                         summary_filename = f"{current_date}_{video_title}_summary.md"
-                        summary_dir = os.path.join(os.path.dirname(__file__), "summary")
+                        summary_dir = os.path.join(os.path.dirname(__file__), "summary", current_date)
                         if not os.path.exists(summary_dir):
                             os.makedirs(summary_dir)
                         summary_path = os.path.join(summary_dir, summary_filename)

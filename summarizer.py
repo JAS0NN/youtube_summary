@@ -65,8 +65,8 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False) -> Op
 請記住，你的目標是創建一個有深度、有洞見且實用的影片精華提取，幫助讀者獲取影片中最有價值的思想和知識，而不必關注時間戳或完整的內容時間軸。"
 '''
 
-    # model = "grok-2-latest" if grok else "gpt-4o"
-    model = "meta-llama/llama-4-maverick:free"
+    model = "grok-4" if grok else "gpt-4o"
+    # model = "meta-llama/llama-4-maverick:free"
     data = {
         "messages": [
             {"role": "system", "content": sys_prompt},
