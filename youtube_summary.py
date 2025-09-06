@@ -17,7 +17,7 @@ def main():
 
     print("请选择要使用的 API 平台：")
     print("1. OpenAI (GPT-4o)")
-    print("2. Grok (grok-2-latest)")
+    print("2. Grok (grok-3)")
     print("3. OpenRouter (openrouter API)")
 
     while True:
@@ -25,25 +25,32 @@ def main():
             choice = input("请输入选择 (1、2 或 3): ")
             if choice == '1':
                 use_grok = False
+                use_openai = True
                 api_key = openai_api_key
                 if not api_key:
                     print("请设置 OpenAI API 密钥")
+                    print("您可以在 .env 文件中添加 OPENAI_API_KEY=您的密钥")
+                    print("OpenAI API 密钥应以 'sk-' 开头，不是 'sk-proj-'")
                     sys.exit(1)
                 print("已选择 OpenAI API")
                 break
             elif choice == '2':
                 use_grok = True
+                use_openai = False
                 api_key = grok_api_key
                 if not api_key:
                     print("请设置 Grok API 密钥")
+                    print("您可以在 .env 文件中添加 GROK_API_KEY=您的密钥")
                     sys.exit(1)
                 print("已选择 Grok API")
                 break
             elif choice == '3':
                 use_grok = False
+                use_openai = False
                 api_key = openrouter_api_key
                 if not api_key:
                     print("请设置 OpenRouter API 密钥")
+                    print("您可以在 .env 文件中添加 OPENROUTER_API_KEY=您的密钥")
                     sys.exit(1)
                 print("已选择 OpenRouter API")
                 break
@@ -66,7 +73,7 @@ def main():
 
             if transcript_content and video_title:
                 print("\n正在生成摘要...")
-                result = get_summary(transcript_content, api_key, grok=use_grok)
+                result = get_summary(transcript_content, api_key, grok=use_grok, use_openai=use_openai)
 
                 if result:
                     try:
@@ -83,8 +90,10 @@ def main():
                             f.write(summary)
                         print(f"\n摘要已保存到 {summary_path}")
                     except KeyError as e:
-                        print(f"Error parsing API response: {e}")
-                        print("API response:", json.dumps(result, indent=2, ensure_ascii=False) )
+                        print(f"解析API响应时出错: {e}")
+                        print("API响应:", json.dumps(result, indent=2, ensure_ascii=False))
+                else:
+                    print("API调用失败，请检查错误信息并确保您的API密钥正确。")
             print("\n請輸入下一個影片網址，或輸入 'q' 退出")
 
         except ValueError as e:
