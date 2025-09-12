@@ -56,12 +56,13 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
         "temperature": 0.01
     }
 
+    response = None
     try:
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
-        if response.status_code == 401:
+        if response and response.status_code == 401:
             if use_openai:
                 print(f"[Summarizer] 错误: OpenAI API密钥无效或未设置。请检查您的API密钥。")
                 print(f"[Summarizer] OpenAI API密钥应以'sk-'开头，而不是'sk-proj-'。")
@@ -71,7 +72,7 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
                 print(f"[Summarizer] 错误: OpenRouter API密钥无效或未设置。请检查您的API密钥。")
         else:
             print(f"[Summarizer] HTTP错误: {e}")
-            if response.text:
+            if response and response.text:
                 print(f"[Summarizer] 响应内容: {response.text}")
         return None
     except requests.exceptions.ConnectionError as e:
