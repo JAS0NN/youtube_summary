@@ -3,3 +3,9 @@ requests>=2.25.0
 ytpy>=1.1.0
 python-dotenv>=0.19.0
 youtube-transcript-api>=0.4.4
+yt-dlp
+python-dotenv
+requests
+youtube-transcript-api
+yt-dlp
+ytpy
