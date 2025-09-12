@@ -1,6 +1,35 @@
 import os
 import json
 from typing import Dict, Optional
+from pathlib import Path
+import re
+
+
+def load_dotenv(dotenv_path=None):
+    """
+    Load environment variables from .env file
+    """
+    if dotenv_path is None:
+        # 查找项目根目录的.env文件
+        project_root = Path(__file__).parent.parent
+        dotenv_path = project_root / ".env"
+    
+    if not os.path.isfile(dotenv_path):
+        return
+    
+    with open(dotenv_path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            key = key.strip()
+            value = value.strip()
+            # 移除引号
+            if value and (value[0] == value[-1] == '"' or value[0] == value[-1] == "'"):
+                value = value[1:-1]
+            
+            os.environ[key] = value
 
 
 def load_api_keys() -> Dict[str, Optional[str]]:
@@ -8,6 +37,9 @@ def load_api_keys() -> Dict[str, Optional[str]]:
     Load API keys from environment variables or fallback to config/config.json.
     Returns a dict with keys: openai_api_key, grok_api_key, openrouter_api_key.
     """
+    # 先加载.env文件
+    load_dotenv()
+    
     keys = {
         "openai_api_key": os.getenv("OPENAI_API_KEY"),
         "grok_api_key": os.getenv("GROK_API_KEY"),
