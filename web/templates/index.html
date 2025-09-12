@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📺 YouTube Video Summarizer</h1>
+            <p class="subtitle">Get AI-powered summaries of YouTube videos instantly</p>
+        </header>
+
+        <main>
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('summarize') }}" class="summarize-form">
+                <div class="form-group">
+                    <label for="url">YouTube Video URL</label>
+                    <input type="text" 
+                           id="url" 
+                           name="url" 
+                           placeholder="https://www.youtube.com/watch?v=..." 
+                           required
+                           class="url-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="provider">AI Provider</label>
+                    <select id="provider" name="provider" required class="provider-select">
+                        {% if providers.openai %}
+                            <option value="openai" {% if default_provider == 'openai' %}selected{% endif %}>
+                                OpenAI (GPT-4o)
+                            </option>
+                        {% endif %}
+                        {% if providers.grok %}
+                            <option value="grok" {% if default_provider == 'grok' %}selected{% endif %}>
+                                Grok (grok-3)
+                            </option>
+                        {% endif %}
+                        {% if providers.openrouter %}
+                            <option value="openrouter" {% if default_provider == 'openrouter' %}selected{% endif %}>
+                                OpenRouter (GPT-4o)
+                            </option>
+                        {% endif %}
+                        {% if not (providers.openai or providers.grok or providers.openrouter) %}
+                            <option value="" disabled>No API keys configured</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="save_files" name="save_files">
+                        <span class="checkmark"></span>
+                        Save transcript and summary files
+                    </label>
+                </div>
+
+                <button type="submit" 
+                        class="submit-btn"
+                        {% if not (providers.openai or providers.grok or providers.openrouter) %}disabled{% endif %}>
+                    🔍 Summarize Video
+                </button>
+            </form>
+
+            {% if not (providers.openai or providers.grok or providers.openrouter) %}
+                <div class="no-keys-warning">
+                    <h3>⚠️ No API Keys Configured</h3>
+                    <p>To use the summarizer, you need to configure at least one API key in Replit Secrets:</p>
+                    <ul>
+                        <li><strong>OPENAI_API_KEY</strong> - For OpenAI GPT-4o (recommended)</li>
+                        <li><strong>GROK_API_KEY</strong> - For Grok API</li>
+                        <li><strong>OPENROUTER_API_KEY</strong> - For OpenRouter API</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </main>
+
+        <footer>
+            <p>Powered by AI • Built with Flask</p>
+        </footer>
+    </div>
+
+    <script>
+        // Simple form validation and UX improvements
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.summarize-form');
+            const urlInput = document.getElementById('url');
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            // URL validation
+            urlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+                const isValid = url.includes('youtube.com') || url.includes('youtu.be');
+                
+                if (url && !isValid) {
+                    this.setCustomValidity('Please enter a valid YouTube URL');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            // Form submission loading state
+            form.addEventListener('submit', function() {
+                submitBtn.innerHTML = '⏳ Processing...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>

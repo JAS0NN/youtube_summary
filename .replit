@@ -15,15 +15,24 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "YouTube Summarizer"
+args = "YouTube Summarizer Web App"
 
 [[workflows.workflow]]
-name = "YouTube Summarizer"
+name = "YouTube Summarizer Web App"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python youtube_summary.py"
+args = "python app.py"
+waitForPort = 5000
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 40731
+externalPort = 3001

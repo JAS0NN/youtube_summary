@@ -9,3 +9,7 @@ requests
 youtube-transcript-api
 yt-dlp
 ytpy
+flask
+markdown
+bleach>=6.0.0
+bleach
