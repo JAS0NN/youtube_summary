@@ -2,7 +2,7 @@ import os
 import datetime
 from typing import Optional, Tuple
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_utils import get_video_title
+from youtube_utils import get_video_title, sanitize_filename
 
 
 def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
@@ -26,7 +26,7 @@ def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
 
         video_title = get_video_title(video_id)
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        transcript_filename = f"{video_title}_{current_date}_transcript.txt"
+        transcript_filename = sanitize_filename(f"{video_title}_{current_date}_transcript.txt")
 
         formatted_lines = [f"# {video_title}\n\n"]
         for entry in transcript:

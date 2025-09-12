@@ -4,7 +4,7 @@ import datetime
 import json
 
 from config.config_manager import load_api_keys
-from youtube_utils import extract_video_id
+from youtube_utils import extract_video_id, sanitize_filename
 from transcript_handler import get_transcript
 from summarizer import get_summary
 
@@ -81,7 +81,7 @@ def main():
                         print("\n摘要：")
                         print(summary)
 
-                        summary_filename = f"{current_date}_{video_title}_summary.md"
+                        summary_filename = sanitize_filename(f"{current_date}_{video_title}_summary.md")
                         summary_dir = os.path.join(os.path.dirname(__file__), "summary", current_date)
                         if not os.path.exists(summary_dir):
                             os.makedirs(summary_dir)

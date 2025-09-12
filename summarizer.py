@@ -44,7 +44,7 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
     elif grok:
         model = "grok-3"
     else:
-        model = "gpt-4o"  # Default for OpenRouter
+        model = "openai/gpt-4o"  # OpenRouter requires provider prefix
     # model = "meta-llama/llama-4-maverick:free"
     data = {
         "messages": [
