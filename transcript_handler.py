@@ -13,27 +13,33 @@ def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
     Returns (formatted_transcript, video_title) or (None, None) on failure.
     """
     try:
+        # Create API instance
+        api = YouTubeTranscriptApi()
+        
+        transcript_data = None
+        
+        # Try to fetch English transcript first
         try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
+            transcript_data = api.fetch(video_id, ['en'])
+            print("[TranscriptHandler] Found English transcript")
         except Exception as e:
-            if 'Could not retrieve a transcript' in str(e):
-                print("[TranscriptHandler] English transcript not available, trying Chinese...")
-                transcript = YouTubeTranscriptApi.get_transcript(
-                    video_id, languages=['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans']
-                )
-            else:
-                raise e
+            print("[TranscriptHandler] English transcript not available, trying Chinese...")
+            try:
+                transcript_data = api.fetch(video_id, ['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans'])
+                print("[TranscriptHandler] Found Chinese transcript")
+            except Exception as final_e:
+                raise final_e
 
         video_title = get_video_title(video_id)
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
         transcript_filename = sanitize_filename(f"{video_title}_{current_date}_transcript.txt")
 
         formatted_lines = [f"# {video_title}\n\n"]
-        for entry in transcript:
-            minutes = int(entry['start'] // 60)
-            seconds = int(entry['start'] % 60)
+        for entry in transcript_data:
+            minutes = int(entry.start // 60)
+            seconds = int(entry.start % 60)
             timestamp = f"[{minutes:02d}:{seconds:02d}] "
-            formatted_lines.append(f"{timestamp}{entry['text']}\n")
+            formatted_lines.append(f"{timestamp}{entry.text}\n")
 
         formatted_transcript = ''.join(formatted_lines)
 
