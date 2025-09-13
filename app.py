@@ -63,6 +63,7 @@ def summarize():
     """Process YouTube URL and generate summary."""
     url = request.form.get('url', '').strip()
     provider = request.form.get('provider', '').strip()
+    custom_model = request.form.get('custom_model', '').strip() if request.form.get('custom_model') else None
     save_files = 'save_files' in request.form
     
     # Basic validation
@@ -80,8 +81,17 @@ def summarize():
         flash(f'{provider.title()} API key not configured', 'error')
         return redirect(url_for('index'))
     
-    # Process the summarization
-    result = summarize_youtube_url(url, provider, save_files)
+    # Validate custom model for OpenRouter
+    if provider == 'openrouter':
+        if not custom_model:
+            flash('Please enter a model name for OpenRouter', 'error')
+            return redirect(url_for('index'))
+    else:
+        # Clear custom_model for other providers to avoid confusion
+        custom_model = None
+    
+    # Process the summarization  
+    result = summarize_youtube_url(url, provider, save_files, custom_model)
     
     if result['success']:
         # Convert summary markdown to HTML and sanitize to prevent XSS
@@ -94,6 +104,7 @@ def summarize():
                              summary_html=summary_html,
                              summary_text=result['data']['summary'],
                              provider=result['data']['provider'],
+                             model=result['data'].get('model'),
                              transcript_content=result['data']['transcript_content'])
     else:
         # Handle different error types with appropriate messages

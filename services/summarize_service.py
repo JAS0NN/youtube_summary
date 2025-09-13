@@ -21,7 +21,7 @@ def get_available_providers() -> Dict[str, bool]:
     }
 
 
-def summarize_youtube_url(url: str, provider: str, save_files: bool = False) -> Dict:
+def summarize_youtube_url(url: str, provider: str, save_files: bool = False, custom_model: str = None) -> Dict:
     """
     Summarize a YouTube video from URL.
     
@@ -29,6 +29,7 @@ def summarize_youtube_url(url: str, provider: str, save_files: bool = False) -> 
         url: YouTube video URL
         provider: AI provider ('openai', 'grok', 'openrouter')
         save_files: Whether to save transcript and summary files
+        custom_model: Custom model name for OpenRouter (optional)
         
     Returns:
         Dict with success status, data, and error information
@@ -78,7 +79,7 @@ def summarize_youtube_url(url: str, provider: str, save_files: bool = False) -> 
             }
         
         # Generate summary
-        result = get_summary(transcript_content, api_key, grok=use_grok, use_openai=use_openai)
+        result = get_summary(transcript_content, api_key, grok=use_grok, use_openai=use_openai, custom_model=custom_model)
         
         if not result:
             return {
@@ -128,6 +129,8 @@ def summarize_youtube_url(url: str, provider: str, save_files: bool = False) -> 
             with open(summary_path, 'w', encoding='utf-8') as f:
                 f.write(f"# {video_title}\n\n")
                 f.write(f"**Provider:** {provider.title()}\n")
+                if provider == 'openrouter' and custom_model:
+                    f.write(f"**Model:** {custom_model}\n")
                 f.write(f"**Date:** {current_date}\n")
                 f.write(f"**Video URL:** https://www.youtube.com/watch?v={video_id}\n\n")
                 f.write("## Summary\n\n")
@@ -144,6 +147,7 @@ def summarize_youtube_url(url: str, provider: str, save_files: bool = False) -> 
                 'video_id': video_id,
                 'summary': summary,
                 'provider': provider,
+                'model': custom_model if provider == 'openrouter' and custom_model else None,
                 'transcript_content': transcript_content,
                 'transcript_path': transcript_path,
                 'summary_path': summary_path

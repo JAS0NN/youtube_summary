@@ -51,13 +51,32 @@
                         {% endif %}
                         {% if providers.openrouter %}
                             <option value="openrouter" {% if default_provider == 'openrouter' %}selected{% endif %}>
-                                OpenRouter (GPT-4o)
+                                OpenRouter (Custom Model)
                             </option>
                         {% endif %}
                         {% if not (providers.openai or providers.grok or providers.openrouter) %}
                             <option value="" disabled>No API keys configured</option>
                         {% endif %}
                     </select>
+                </div>
+
+                <div class="form-group custom-model-group" id="customModelGroup" style="display: none;">
+                    <label for="custom_model">Model Name</label>
+                    <input type="text" 
+                           id="custom_model" 
+                           name="custom_model" 
+                           placeholder="e.g., openai/gpt-4o, anthropic/claude-3.5-sonnet, meta-llama/llama-3.1-8b-instruct"
+                           class="model-input">
+                    <div class="model-help">
+                        <p><strong>Popular OpenRouter Models:</strong></p>
+                        <ul>
+                            <li><code>openai/gpt-4o</code> - OpenAI GPT-4o (default)</li>
+                            <li><code>anthropic/claude-3.5-sonnet</code> - Claude 3.5 Sonnet</li>
+                            <li><code>meta-llama/llama-3.1-8b-instruct</code> - Llama 3.1 8B</li>
+                            <li><code>google/gemini-pro</code> - Google Gemini Pro</li>
+                        </ul>
+                        <p>See <a href="https://openrouter.ai/models" target="_blank">OpenRouter Models</a> for more options.</p>
+                    </div>
                 </div>
 
                 <div class="form-group checkbox-group">
@@ -112,8 +131,36 @@
                 }
             });
             
-            // Form submission loading state
-            form.addEventListener('submit', function() {
+            // Show/hide custom model field based on provider selection
+            const providerSelect = document.getElementById('provider');
+            const customModelGroup = document.getElementById('customModelGroup');
+            const customModelInput = document.getElementById('custom_model');
+            
+            function toggleCustomModelField() {
+                if (providerSelect.value === 'openrouter') {
+                    customModelGroup.style.display = 'block';
+                    customModelInput.required = true;
+                } else {
+                    customModelGroup.style.display = 'none';
+                    customModelInput.required = false;
+                    customModelInput.value = '';
+                }
+            }
+            
+            providerSelect.addEventListener('change', toggleCustomModelField);
+            toggleCustomModelField(); // Initialize on page load
+            
+            // Form submission validation and loading state
+            form.addEventListener('submit', function(e) {
+                // Additional validation for OpenRouter
+                if (providerSelect.value === 'openrouter' && !customModelInput.value.trim()) {
+                    e.preventDefault();
+                    customModelInput.focus();
+                    customModelInput.setCustomValidity('Please enter a model name for OpenRouter');
+                    customModelInput.reportValidity();
+                    return;
+                }
+                
                 submitBtn.innerHTML = '⏳ Processing...';
                 submitBtn.disabled = true;
             });

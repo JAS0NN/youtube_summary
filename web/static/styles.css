@@ -118,7 +118,7 @@ main {
     color: var(--text-color);
 }
 
-.url-input, .provider-select {
+.url-input, .provider-select, .model-input {
     width: 100%;
     padding: 12px 16px;
     font-size: 16px;
@@ -127,13 +127,76 @@ main {
     transition: border-color 0.3s ease;
 }
 
-.url-input:focus, .provider-select:focus {
+.url-input:focus, .provider-select:focus, .model-input:focus {
     outline: none;
     border-color: var(--primary-color);
 }
 
 .checkbox-group {
     margin: 20px 0;
+}
+
+/* Custom Model Input Styles */
+.custom-model-group {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.custom-model-group:has(.model-input:focus) {
+    border-color: var(--primary-color);
+    background-color: #fff;
+}
+
+.model-input {
+    margin-bottom: 15px;
+}
+
+.model-help {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.model-help p {
+    margin-bottom: 10px;
+}
+
+.model-help strong {
+    color: var(--text-color);
+}
+
+.model-help ul {
+    margin: 10px 0 15px 20px;
+    padding: 0;
+}
+
+.model-help li {
+    margin-bottom: 6px;
+    list-style-type: disc;
+}
+
+.model-help code {
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 13px;
+    color: #e83e8c;
+}
+
+.model-help a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.model-help a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }
 
 .checkbox-label {
