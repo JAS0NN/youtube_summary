@@ -4,16 +4,17 @@ import requests
 from typing import Optional, Dict, Union
 
 
-def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_openai: bool = False) -> Optional[Dict]:
+def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_openai: bool = False, openrouter_model: str = None) -> Optional[Dict]:
     """
     Generate a summary from the transcript content using the selected API.
     Returns the API response JSON as a dict, or None on failure.
-    
+
     Args:
         transcript_content: The transcript text to summarize
         api_key: API key for the selected service
         grok: Whether to use Grok API
         use_openai: Whether to use OpenAI API
+        openrouter_model: Model name for OpenRouter (e.g., "openai/gpt-4o")
     """
     if use_openai:
         url = "https://api.openai.com/v1/chat/completions"
@@ -44,7 +45,8 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
     elif grok:
         model = "grok-3"
     else:
-        model = "gpt-4o"  # Default for OpenRouter
+        # OpenRouter - use the model name provided by user
+        model = openrouter_model if openrouter_model else "openai/gpt-4o"  # Default to GPT-4o if no model specified
     # model = "meta-llama/llama-4-maverick:free"
     data = {
         "messages": [

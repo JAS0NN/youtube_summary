@@ -20,6 +20,8 @@ def main():
     print("2. Grok (grok-3)")
     print("3. OpenRouter (openrouter API)")
 
+    selected_model = None  # Default for non-OpenRouter cases
+
     while True:
         try:
             choice = input("请输入选择 (1、2 或 3): ")
@@ -53,6 +55,20 @@ def main():
                     print("您可以在 .env 文件中添加 OPENROUTER_API_KEY=您的密钥")
                     sys.exit(1)
                 print("已选择 OpenRouter API")
+
+                # Ask user to input model name for OpenRouter
+                print("\n请输入要使用的模型名称 (例如: openai/gpt-4o, anthropic/claude-3.5-sonnet, meta-llama/llama-3.1-405b-instruct):")
+                while True:
+                    try:
+                        selected_model = input("模型名称: ").strip()
+                        if selected_model:
+                            print(f"已选择模型: {selected_model}")
+                            break
+                        else:
+                            print("请输入有效的模型名称")
+                    except KeyboardInterrupt:
+                        print("\n程序已退出")
+                        sys.exit(0)
                 break
             else:
                 print("无效选择，请输入 1、2 或 3")
@@ -73,7 +89,7 @@ def main():
 
             if transcript_content and video_title:
                 print("\n正在生成摘要...")
-                result = get_summary(transcript_content, api_key, grok=use_grok, use_openai=use_openai)
+                result = get_summary(transcript_content, api_key, grok=use_grok, use_openai=use_openai, openrouter_model=selected_model)
 
                 if result:
                     try:
