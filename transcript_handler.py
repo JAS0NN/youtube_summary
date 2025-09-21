@@ -13,14 +13,27 @@ def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
     Returns (formatted_transcript, video_title) or (None, None) on failure.
     """
     try:
+        ytt_api = YouTubeTranscriptApi()
         try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
+            # Try to get English transcript (including auto-generated)
+            transcript_list = ytt_api.list(video_id)
+            transcript = transcript_list.find_transcript(['en'])
+            fetched_transcript = transcript.fetch()
+            transcript = fetched_transcript.to_raw_data()
         except Exception as e:
-            if 'Could not retrieve a transcript' in str(e):
+            if 'Could not retrieve a transcript' in str(e) or 'No transcripts were found' in str(e):
                 print("[TranscriptHandler] English transcript not available, trying Chinese...")
-                transcript = YouTubeTranscriptApi.get_transcript(
-                    video_id, languages=['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans']
-                )
+                try:
+                    transcript = transcript_list.find_transcript(['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans'])
+                    fetched_transcript = transcript.fetch()
+                    transcript = fetched_transcript.to_raw_data()
+                except:
+                    # If Chinese not available, try translation from English
+                    print("[TranscriptHandler] Chinese transcript not available, trying to translate English to Chinese...")
+                    english_transcript = transcript_list.find_transcript(['en'])
+                    translated_transcript = english_transcript.translate('zh-Hant')
+                    fetched_transcript = translated_transcript.fetch()
+                    transcript = fetched_transcript.to_raw_data()
             else:
                 raise e
 
