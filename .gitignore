@@ -196,3 +196,4 @@ pyrightconfig.json
 transcript/
 summary/
 config/config.json
+formatted_prompts/
