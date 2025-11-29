@@ -41,12 +41,12 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
         sys_prompt = "Please summarize the following content."  # Fallback prompt
 
     if use_openai:
-        model = "gpt-4o"
+        model = "gpt-5.1"
     elif grok:
-        model = "grok-3"
+        model = "grok-4-1-fast-non-reasoning"
     else:
         # OpenRouter - use the model name provided by user
-        model = openrouter_model if openrouter_model else "openai/gpt-4o"  # Default to GPT-4o if no model specified
+        model = openrouter_model if openrouter_model else "openai/gpt-5.1"  # Default to gpt-5.1 if no model specified
     # model = "meta-llama/llama-4-maverick:free"
     data = {
         "messages": [
@@ -54,8 +54,7 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
             {"role": "user", "content": transcript_content}
         ],
         "model": model,
-        "stream": False,
-        "temperature": 0.01
+        "stream": False
     }
 
     try:
@@ -65,27 +64,27 @@ def get_summary(transcript_content: str, api_key: str, grok: bool = False, use_o
     except requests.exceptions.HTTPError as e:
         if response.status_code == 401:
             if use_openai:
-                print(f"[Summarizer] 错误: OpenAI API密钥无效或未设置。请检查您的API密钥。")
-                print(f"[Summarizer] OpenAI API密钥应以'sk-'开头，而不是'sk-proj-'。")
+                print(f"[Summarizer] Error: OpenAI API key is invalid or not set. Please check your API key.")
+                print(f"[Summarizer] OpenAI API key should start with 'sk-', not 'sk-proj-'.")
             elif grok:
-                print(f"[Summarizer] 错误: Grok API密钥无效或未设置。请检查您的API密钥。")
+                print(f"[Summarizer] Error: Grok API key is invalid or not set. Please check your API key.")
             else:
-                print(f"[Summarizer] 错误: OpenRouter API密钥无效或未设置。请检查您的API密钥。")
+                print(f"[Summarizer] Error: OpenRouter API key is invalid or not set. Please check your API key.")
         else:
-            print(f"[Summarizer] HTTP错误: {e}")
+            print(f"[Summarizer] HTTP error: {e}")
             if response.text:
-                print(f"[Summarizer] 响应内容: {response.text}")
+                print(f"[Summarizer] Response content: {response.text}")
         return None
     except requests.exceptions.ConnectionError as e:
-        print(f"[Summarizer] 连接错误: {e}")
-        print("[Summarizer] 请检查您的网络连接或API端点是否正确。")
+        print(f"[Summarizer] Connection error: {e}")
+        print("[Summarizer] Please check your network connection or if the API endpoint is correct.")
         return None
     except requests.exceptions.Timeout as e:
-        print(f"[Summarizer] 请求超时: {e}")
+        print(f"[Summarizer] Request timeout: {e}")
         return None
     except requests.exceptions.RequestException as e:
-        print(f"[Summarizer] 请求错误: {e}")
+        print(f"[Summarizer] Request error: {e}")
         return None
     except Exception as e:
-        print(f"[Summarizer] 未预期的错误: {e}")
+        print(f"[Summarizer] Unexpected error: {e}")
         return None

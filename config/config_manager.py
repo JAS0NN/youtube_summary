@@ -10,7 +10,7 @@ def load_dotenv(dotenv_path=None):
     Load environment variables from .env file
     """
     if dotenv_path is None:
-        # 查找项目根目录的.env文件
+        # Find .env file in project root directory
         project_root = Path(__file__).parent.parent
         dotenv_path = project_root / ".env"
     
@@ -25,7 +25,7 @@ def load_dotenv(dotenv_path=None):
             key, value = line.split('=', 1)
             key = key.strip()
             value = value.strip()
-            # 移除引号
+            # Remove quotes
             if value and (value[0] == value[-1] == '"' or value[0] == value[-1] == "'"):
                 value = value[1:-1]
             
@@ -37,7 +37,7 @@ def load_api_keys() -> Dict[str, Optional[str]]:
     Load API keys from environment variables or fallback to config/config.json.
     Returns a dict with keys: openai_api_key, grok_api_key, openrouter_api_key.
     """
-    # 先加载.env文件
+    # Load .env file first
     load_dotenv()
     
     keys = {

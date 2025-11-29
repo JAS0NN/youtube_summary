@@ -1,7 +1,7 @@
 import os
 import datetime
 from typing import Optional, Tuple
-from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 from youtube_utils import get_video_title
 
 
@@ -17,25 +17,31 @@ def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
         try:
             # Try to get English transcript (including auto-generated)
             transcript_list = ytt_api.list(video_id)
-            transcript = transcript_list.find_transcript(['en'])
-            fetched_transcript = transcript.fetch()
-            transcript = fetched_transcript.to_raw_data()
+            transcript_obj = transcript_list.find_transcript(['en'])
+            transcript = transcript_obj.fetch()
         except Exception as e:
             if 'Could not retrieve a transcript' in str(e) or 'No transcripts were found' in str(e):
                 print("[TranscriptHandler] English transcript not available, trying Chinese...")
                 try:
-                    transcript = transcript_list.find_transcript(['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans'])
-                    fetched_transcript = transcript.fetch()
-                    transcript = fetched_transcript.to_raw_data()
+                    transcript_obj = transcript_list.find_transcript(['zh', 'zh-CN', 'zh-TW', 'zh-Hant', 'zh-Hans'])
+                    transcript = transcript_obj.fetch()
                 except:
                     # If Chinese not available, try translation from English
                     print("[TranscriptHandler] Chinese transcript not available, trying to translate English to Chinese...")
                     english_transcript = transcript_list.find_transcript(['en'])
                     translated_transcript = english_transcript.translate('zh-Hant')
-                    fetched_transcript = translated_transcript.fetch()
-                    transcript = fetched_transcript.to_raw_data()
+                    transcript = translated_transcript.fetch()
             else:
                 raise e
+        except TranscriptsDisabled:
+            print("[TranscriptHandler] Subtitles are disabled for this video.")
+            return None, None
+        except NoTranscriptFound:
+            print("[TranscriptHandler] No transcript found for this video.")
+            return None, None
+        except Exception as e:
+            print(f"[TranscriptHandler] Unexpected error in transcript fetching logic: {e}")
+            raise e
 
         video_title = get_video_title(video_id)
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
@@ -43,10 +49,10 @@ def get_transcript(video_id: str) -> Tuple[Optional[str], Optional[str]]:
 
         formatted_lines = [f"# {video_title}\n\n"]
         for entry in transcript:
-            minutes = int(entry['start'] // 60)
-            seconds = int(entry['start'] % 60)
+            minutes = int(entry.start // 60)
+            seconds = int(entry.start % 60)
             timestamp = f"[{minutes:02d}:{seconds:02d}] "
-            formatted_lines.append(f"{timestamp}{entry['text']}\n")
+            formatted_lines.append(f"{timestamp}{entry.text}\n")
 
         formatted_transcript = ''.join(formatted_lines)
 
